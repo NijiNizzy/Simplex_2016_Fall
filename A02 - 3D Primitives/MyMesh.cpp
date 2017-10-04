@@ -279,8 +279,8 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	float fValue = (a_fRadius*a_fHeight) * 0.5f;
 
 	vector3 point0(-fValue, -fValue, fValue); //0
-	vector3 point1(fValue, -fValue, fValue - 0.1f); //1
-	vector3 point2(fValue, -fValue, fValue - 0.2f); //2
+	vector3 point1(fValue, -fValue, fValue); //1
+	vector3 point2(fValue, -fValue, fValue); //2
 	vector3 point3(-fValue, -fValue, fValue); //3
 	vector3 point4(-fValue, -fValue, -fValue); //4
 	vector3 point5(fValue, -fValue, -fValue); //5
