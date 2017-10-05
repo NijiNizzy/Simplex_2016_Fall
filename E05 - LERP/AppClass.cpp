@@ -62,7 +62,37 @@ void Application::Display(void)
 
 
 	//your code goes here
-	v3CurrentPos = vector3(0.0f, 0.0f, 0.0f);
+
+	// control variable for collection of stops
+	static int i = 0;
+
+	// start point (new iteration each time display is called)
+	vector3 v3Start = m_stopsList[i];
+
+	// end point (the start point + 1)
+	// if over the size it will return to 0
+	vector3 v3End = m_stopsList[(i + 1) % m_stopsList.size()];
+
+	// use MapValue to reset percentage every new path
+	float fMax = 2.0f;
+	float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
+
+	// current pos
+	v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
+
+	// upon completion of route
+	if (fPercent >= 1.0f)
+	{
+		// advance control variable
+		i++;
+		// reset timer
+		fTimer = m_pSystem->GetDeltaTime(uClock);
+
+		// if is equal to the size of the vector, rests i to zero
+		// same check as when setting the end point of the current path
+		i %= m_stopsList.size();
+	}
+	
 	//-------------------
 	
 
