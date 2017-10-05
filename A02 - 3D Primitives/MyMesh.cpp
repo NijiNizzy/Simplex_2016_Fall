@@ -487,6 +487,7 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 			float angle3 = PI / a_nSubdivisions *(j+1);
 			float angle4 = PI / a_nSubdivisions *j;
 
+			// calculating spherical coordinates
 			//x = radius * sin(phi)* cos(theta)
 			//y = radius * sin(phi) * sin(theta)
 			//z = radius * cos(phi)
