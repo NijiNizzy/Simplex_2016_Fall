@@ -276,38 +276,24 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	float fValue = (a_fRadius*a_fHeight) * 0.33f/a_nSubdivisions;
 
-	vector3 basePoint(0, 0, 0);
+	// Top of the cone and center of base points
+	vector3 coneTop(0, a_fHeight * 0.5f, 0);
+	vector3 baseCenter(0, -a_fHeight * 0.5f, 0);
 
-	for (int i = 0; i < a_nSubdivisions + 2; i++)
+	// base points angle in radians
+	float angle = glm::radians(360.0f / a_nSubdivisions);
+
+	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		AddTri(vector3());
+		// adjacent points along the outer rim
+		vector3 basePoint1(cos(angle * i)*a_fRadius, baseCenter.y, sin(angle*i)*a_fRadius);
+		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius,baseCenter.y, sin(angle*(i + 1))*a_fRadius);
+
+		AddTri(basePoint2, baseCenter, basePoint1); // drawing the base
+		AddTri(basePoint1, coneTop, basePoint2); // drawing the sides
 	}
 
-	//AddTri(point0, point1, point9);
-	//AddTri(point0, point1, point10);
-
-	//AddTri(point1, point2, point9);
-	//AddTri(point1, point2, point10);
-
-	//AddTri(point2, point3, point9);
-	//AddTri(point2, point3, point10);
-
-	//AddTri(point3, point4, point9);
-	//AddTri(point3, point4, point10);
-
-	//AddTri(point5, point6, point9);
-	//AddTri(point5, point6, point10);
-
-	//AddTri(point6, point7, point9);
-	//AddTri(point6, point7, point10);
-
-	//AddTri(point7, point8, point9);
-	//AddTri(point7, point8, point10);
-
-	//AddTri(point8, point0, point9);
-	//AddTri(point8, point0, point10);
 	// -------------------------------
 
 	// Adding information about color
@@ -331,7 +317,34 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	// Top center of the cylinder and bottom center cylinder
+	vector3 topBaseCenter(0, a_fHeight * 0.5f, 0);
+	vector3 bottomBaseCenter(0, -a_fHeight * 0.5f, 0);
+
+	// base points angle in radians
+	float angle = glm::radians(360.0f / a_nSubdivisions);
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// adjacent points along the outer rim
+
+		// bottom points
+		vector3 basePoint1(cos(angle * i)*a_fRadius, bottomBaseCenter.y, sin(angle*i)*a_fRadius);
+		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+
+		// top points
+		vector3 basePoint3(cos(angle * i)*a_fRadius, topBaseCenter.y, sin(angle*i)*a_fRadius);
+		vector3 basePoint4(cos(angle * (i + 1))*a_fRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+
+		AddTri(basePoint2, bottomBaseCenter, basePoint1); // drawing the bottom base
+		AddTri(basePoint3, topBaseCenter, basePoint4); // drawing the top 
+
+		// drawing sides
+		AddQuad(basePoint1, basePoint2, basePoint3, basePoint4);
+		AddQuad(basePoint4, basePoint2, basePoint3, basePoint1);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -361,7 +374,34 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	// Top center of the cylinder and bottom center cylinder
+	vector3 topBaseCenter(0, a_fHeight * 0.5f, 0);
+	vector3 bottomBaseCenter(0, -a_fHeight * 0.5f, 0);
+
+	// base points angle in radians
+	float angle = glm::radians(360.0f / a_nSubdivisions);
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// adjacent points along the outer rim
+
+		// bottom points
+		vector3 basePoint1(cos(angle * i)*a_fRadius, bottomBaseCenter.y, sin(angle*i)*a_fRadius);
+		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+
+		// top points
+		vector3 basePoint3(cos(angle * i)*a_fRadius, topBaseCenter.y, sin(angle*i)*a_fRadius);
+		vector3 basePoint4(cos(angle * (i + 1))*a_fRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+
+		AddTri(basePoint2, bottomBaseCenter, basePoint1); // drawing the bottom base
+		AddTri(basePoint3, topBaseCenter, basePoint4); // drawing the top 
+
+													   // drawing sides
+		AddQuad(basePoint1, basePoint2, basePoint3, basePoint4);
+		AddQuad(basePoint4, basePoint2, basePoint3, basePoint1);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
