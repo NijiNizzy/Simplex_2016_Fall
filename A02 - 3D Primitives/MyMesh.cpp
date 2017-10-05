@@ -387,12 +387,12 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		// adjacent points along the outer rim
 
 		// bottom points
-		vector3 basePoint1(cos(angle * i)*a_fRadius, bottomBaseCenter.y, sin(angle*i)*a_fRadius);
-		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+		vector3 basePoint1(cos(angle * i)*a_fOuterRadius, bottomBaseCenter.y, sin(angle*i)*a_fOuterRadius);
+		vector3 basePoint2(cos(angle * (i + 1))*a_fOuterRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fOuterRadius);
 
 		// top points
-		vector3 basePoint3(cos(angle * i)*a_fRadius, topBaseCenter.y, sin(angle*i)*a_fRadius);
-		vector3 basePoint4(cos(angle * (i + 1))*a_fRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fRadius);
+		vector3 basePoint3(cos(angle * i)*a_fOuterRadius, topBaseCenter.y, sin(angle*i)*a_fOuterRadius);
+		vector3 basePoint4(cos(angle * (i + 1))*a_fOuterRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fOuterRadius);
 
 		AddTri(basePoint2, bottomBaseCenter, basePoint1); // drawing the bottom base
 		AddTri(basePoint3, topBaseCenter, basePoint4); // drawing the top 
