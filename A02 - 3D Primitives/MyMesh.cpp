@@ -288,7 +288,7 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	{
 		// adjacent points along the outer rim
 		vector3 basePoint1(cos(angle * i)*a_fRadius, baseCenter.y, sin(angle*i)*a_fRadius);
-		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius,baseCenter.y, sin(angle*(i + 1))*a_fRadius);
+		vector3 basePoint2(cos(angle * (i + 1))*a_fRadius, baseCenter.y, sin(angle*(i + 1))*a_fRadius);
 
 		AddTri(basePoint2, baseCenter, basePoint1); // drawing the base
 		AddTri(basePoint1, coneTop, basePoint2); // drawing the sides
@@ -476,14 +476,14 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	// latitude levels of sphere -- this for loop iterates through each horizontal level of the sphere
 	for (int i = 0; i < a_nSubdivisions; i++)
 	{
-		// theta angles
+		// theta angles -- latitude angles
 		float angle1 = 2 * PI / a_nSubdivisions *i; 
 		float angle2 = 2 * PI / a_nSubdivisions *(i+1);
 
-		// longitude levels of sphere -- this for loop iterates through each vertical slice of the horizontal layer of the sphere and draws the quad
+		// longitude levels of sphere -- this for loop iterates through each vertical slice of the horizontal layer of the sphere and draws a quad
 		for (int j = 0; j < a_nSubdivisions; j++)
 		{
-			// phi angles
+			// phi angles -- longitude angles
 			float angle3 = PI / a_nSubdivisions *(j+1);
 			float angle4 = PI / a_nSubdivisions *j;
 
