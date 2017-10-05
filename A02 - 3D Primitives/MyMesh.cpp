@@ -375,7 +375,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 
 	// Replace this with your code
 
-	// Top center of the cylinder and bottom center cylinder
+	// Top center of the tube and bottom center tube
 	vector3 topBaseCenter(0, a_fHeight * 0.5f, 0);
 	vector3 bottomBaseCenter(0, -a_fHeight * 0.5f, 0);
 
@@ -386,7 +386,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	{
 		// adjacent points along the outer rim
 
-		// big cylinder
+		// outer cylinder
 
 		// bottom points
 		vector3 basePoint1(cos(angle * i)*a_fOuterRadius, bottomBaseCenter.y, sin(angle*i)*a_fOuterRadius);
@@ -396,7 +396,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		vector3 basePoint3(cos(angle * i)*a_fOuterRadius, topBaseCenter.y, sin(angle*i)*a_fOuterRadius);
 		vector3 basePoint4(cos(angle * (i + 1))*a_fOuterRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fOuterRadius);
 
-		// small cylinder
+		// inner cylinder
 
 		// bottom points
 		vector3 smallBasePoint1(cos(angle * i)*a_fInnerRadius, bottomBaseCenter.y, sin(angle*i)*a_fInnerRadius);
@@ -406,17 +406,17 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		vector3 smallBasePoint3(cos(angle * i)*a_fInnerRadius, topBaseCenter.y, sin(angle*i)*a_fInnerRadius);
 		vector3 smallBasePoint4(cos(angle * (i + 1))*a_fInnerRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fInnerRadius);
 
-		// drawing sides -- small cylinder
+		// drawing sides -- inner cylinder
 		AddQuad(smallBasePoint1, smallBasePoint2, smallBasePoint3, smallBasePoint4);
 		AddQuad(smallBasePoint4, smallBasePoint2, smallBasePoint3, smallBasePoint1);
 
-		// drawing sides -- big cylinder
+		// drawing sides -- outer cylinder
 		AddQuad(basePoint1, basePoint2, basePoint3, basePoint4);
 		AddQuad(basePoint4, basePoint2, basePoint3, basePoint1);
 
 		// drawing bottom and top
 		AddQuad(basePoint1, basePoint2, smallBasePoint1, smallBasePoint2);
-		AddQuad( smallBasePoint3, smallBasePoint4, basePoint3, basePoint4);
+		AddQuad(smallBasePoint3, smallBasePoint4, basePoint3, basePoint4);
 	}
 	// -------------------------------
 
@@ -467,14 +467,40 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 		GenerateCube(a_fRadius * 2.0f, a_v3Color);
 		return;
 	}
-	if (a_nSubdivisions > 6)
-		a_nSubdivisions = 6;
 
 	Release();
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	// latitude levels of sphere -- this for loop iterates through each horizontal level of the sphere
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// theta angles
+		float angle1 = 2 * PI / a_nSubdivisions *i; 
+		float angle2 = 2 * PI / a_nSubdivisions *(i+1);
+
+		// longitude levels of sphere -- this for loop iterates through each vertical slice of the horizontal layer of the sphere and draws the quad
+		for (int j = 0; j < a_nSubdivisions; j++)
+		{
+			// phi angles
+			float angle3 = PI / a_nSubdivisions *(j+1);
+			float angle4 = PI / a_nSubdivisions *j;
+
+			//x = radius * sin(phi)* cos(theta)
+			//y = radius * sin(phi) * sin(theta)
+			//z = radius * cos(phi)
+
+			// creating the points of the quad
+			vector3 quadP1(a_fRadius*cos(angle1)*sin(angle3), a_fRadius*sin(angle1)*sin(angle3), a_fRadius*cos(angle3));
+			vector3 quadP2(a_fRadius*cos(angle1)*sin(angle4), a_fRadius*sin(angle1)*sin(angle4), a_fRadius*cos(angle4));
+			vector3 quadP3(a_fRadius*cos(angle2)*sin(angle3), a_fRadius*sin(angle2)*sin(angle3), a_fRadius*cos(angle3));
+			vector3 quadP4(a_fRadius*cos(angle2)*sin(angle4), a_fRadius*sin(angle2)*sin(angle4), a_fRadius*cos(angle4));
+
+			// drawing the quad
+			AddQuad(quadP1, quadP2, quadP3, quadP4);
+		}
+	}
 	// -------------------------------
 
 	// Adding information about color
