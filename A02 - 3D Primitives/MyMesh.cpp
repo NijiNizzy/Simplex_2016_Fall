@@ -386,6 +386,8 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	{
 		// adjacent points along the outer rim
 
+		// big cylinder
+
 		// bottom points
 		vector3 basePoint1(cos(angle * i)*a_fOuterRadius, bottomBaseCenter.y, sin(angle*i)*a_fOuterRadius);
 		vector3 basePoint2(cos(angle * (i + 1))*a_fOuterRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fOuterRadius);
@@ -394,14 +396,28 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 		vector3 basePoint3(cos(angle * i)*a_fOuterRadius, topBaseCenter.y, sin(angle*i)*a_fOuterRadius);
 		vector3 basePoint4(cos(angle * (i + 1))*a_fOuterRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fOuterRadius);
 
-		AddTri(basePoint2, bottomBaseCenter, basePoint1); // drawing the bottom base
-		AddTri(basePoint3, topBaseCenter, basePoint4); // drawing the top 
+		// small cylinder
 
-													   // drawing sides
+		// bottom points
+		vector3 smallBasePoint1(cos(angle * i)*a_fInnerRadius, bottomBaseCenter.y, sin(angle*i)*a_fInnerRadius);
+		vector3 smallBasePoint2(cos(angle * (i + 1))*a_fInnerRadius, bottomBaseCenter.y, sin(angle*(i + 1))*a_fInnerRadius);
+
+		// top points
+		vector3 smallBasePoint3(cos(angle * i)*a_fInnerRadius, topBaseCenter.y, sin(angle*i)*a_fInnerRadius);
+		vector3 smallBasePoint4(cos(angle * (i + 1))*a_fInnerRadius, topBaseCenter.y, sin(angle*(i + 1))*a_fInnerRadius);
+
+		// drawing sides -- small cylinder
+		AddQuad(smallBasePoint1, smallBasePoint2, smallBasePoint3, smallBasePoint4);
+		AddQuad(smallBasePoint4, smallBasePoint2, smallBasePoint3, smallBasePoint1);
+
+		// drawing sides -- big cylinder
 		AddQuad(basePoint1, basePoint2, basePoint3, basePoint4);
 		AddQuad(basePoint4, basePoint2, basePoint3, basePoint1);
-	}
 
+		// drawing bottom and top
+		AddQuad(basePoint1, basePoint2, smallBasePoint1, smallBasePoint2);
+		AddQuad( smallBasePoint3, smallBasePoint4, basePoint3, basePoint4);
+	}
 	// -------------------------------
 
 	// Adding information about color
