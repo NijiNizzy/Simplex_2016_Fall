@@ -26,6 +26,7 @@ void Application::InitVariables(void)
 		m_uOrbits = 7;
 
 	float fSize = 1.0f; //initial size of orbits
+	float fRadius = 0.95f; // intial orbit radius
 
 	//creating a color using the spectrum 
 	uint uColor = 650; //650 is Red
@@ -39,6 +40,20 @@ void Application::InitVariables(void)
 	{
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
+
+		std::vector<vector3> stopList; // list of stops
+
+		// loop through each point on the orbit based on the amount of sides
+		for (int point = 0; point <= uSides; i++)
+		{
+			vector3 orbitPoint = vector3(0.0f, 0.0f, 0.0f);
+
+			orbitPoint.x = fSize * cos((PI*2)/uSides);
+			orbitPoint.y = fSize * sin((PI*2)/uSides);
+			
+			stopList.push_back(orbitPoint); // store each spot
+		}
+		
 		fSize += 0.5f; //increment the size for the next orbit
 		uColor -= static_cast<uint>(decrements); //decrease the wavelength
 	}
