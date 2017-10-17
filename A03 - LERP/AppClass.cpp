@@ -47,8 +47,9 @@ void Application::InitVariables(void)
 		// loop through each point on the orbit based on the amount of sides
 		for (int point = 0; point < i; point++)
 		{
-
-			// dividing theta by the amount of sides in an orbit
+			// finding the next point based on the amount of sides
+			// by multiplying the angle needed from each point to the next
+			// with the radius
 			float xTheta = fSize * cos((PI * 2) * point / i);
 			float yTheta = fSize * sin((PI * 2) * point / i);
 						
