@@ -41,19 +41,23 @@ void Application::InitVariables(void)
 		vector3 v3Color = WaveLengthToRGB(uColor); //calculate color based on wavelength
 		m_shapeList.push_back(m_pMeshMngr->GenerateTorus(fSize, fSize - 0.1f, 3, i, v3Color)); //generate a custom torus and add it to the meshmanager
 
-		std::vector<vector3> stopList; // list of stops
+		// create a vector for each orbit's stoplist
+		std::vector<vector3> orbitsStopList;
 
 		// loop through each point on the orbit based on the amount of sides
-		for (int point = 0; point <= uSides; i++)
+		for (int point = 1; point <= i; point++)
 		{
-			vector3 orbitPoint = vector3(0.0f, 0.0f, 0.0f);
 
-			orbitPoint.x = fSize * cos((PI*2)/uSides);
-			orbitPoint.y = fSize * sin((PI*2)/uSides);
-			
-			stopList.push_back(orbitPoint); // store each spot
+			// dividing theta by the amount of sides in an orbit
+			float xTheta = fSize * cos((PI * 2) * point / i);
+			float yTheta = fSize * sin((PI * 2) * point / i);
+						
+			orbitsStopList.push_back(vector3(xTheta, yTheta, 0.0f)); // store each spot
 		}
 		
+		orbits.push_back(orbitsStopList); // store each orbit
+		control.push_back(0); // store the initial control variable for each orbit
+
 		fSize += 0.5f; //increment the size for the next orbit
 		uColor -= static_cast<uint>(decrements); //decrease the wavelength
 	}
@@ -80,7 +84,18 @@ void Application::Display(void)
 	/*
 		The following offset will orient the orbits as in the demo, start without it to make your life easier.
 	*/
-	//m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+	m4Offset = glm::rotate(IDENTITY_M4, 90.0f, AXIS_Z);
+
+	// variables needed for loops below
+
+	//Get a timer
+	static float fTimer = 0;	//store the new timer
+	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
+
+	// use MapValue to reset percentage every new path
+	float fMax = 2.0f;
+	float fPercent = MapValue(fTimer, 0.0f, fMax, 0.0f, 1.0f);
 
 	// draw a shapes
 	for (uint i = 0; i < m_uOrbits; ++i)
@@ -88,12 +103,43 @@ void Application::Display(void)
 		m_pMeshMngr->AddMeshToRenderList(m_shapeList[i], glm::rotate(m4Offset, 90.0f, AXIS_X));
 
 		//calculate the current position
-		vector3 v3CurrentPos = ZERO_V3;
+		vector3 v3CurrentPos;
+
+		// start point (new iteration each time display is called)
+		vector3 v3Start = orbits[i][control[i]];
+
+		// end point (the start point + 1)
+		// if over the size it will return to 0
+		vector3 v3End = orbits[i][(control[i] + 1) % orbits[i].size()];
+
+		// current pos
+		v3CurrentPos = glm::lerp(v3Start, v3End, fPercent);
+
 		matrix4 m4Model = glm::translate(m4Offset, v3CurrentPos);
 
 		//draw spheres
 		m_pMeshMngr->AddSphereToRenderList(m4Model * glm::scale(vector3(0.1)), C_WHITE);
 	}
+
+	// upon completion of route
+	if (fPercent >= 1.0f)
+	{
+		for (uint i = 0; i < control.size(); i++)
+		{
+			// advance control variable
+			control[i]++;
+
+			if (orbits[i].size() <= control[i])
+			{
+				// if is equal to the size of the vector, rests i to zero
+				// same check as when setting the end point of the current path
+				control[i] %= orbits[i].size();
+			}
+		}
+			// reset timer
+			fTimer = m_pSystem->GetDeltaTime(uClock);
+	}
+
 
 	//render list call
 	m_uRenderCallCount = m_pMeshMngr->Render();
