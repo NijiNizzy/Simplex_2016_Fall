@@ -45,7 +45,7 @@ void Application::InitVariables(void)
 		std::vector<vector3> orbitsStopList;
 
 		// loop through each point on the orbit based on the amount of sides
-		for (int point = 1; point <= i; point++)
+		for (int point = 0; point < i; point++)
 		{
 
 			// dividing theta by the amount of sides in an orbit
