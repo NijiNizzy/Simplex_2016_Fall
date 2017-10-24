@@ -42,12 +42,22 @@ void Application::Display(void)
 
 	// 10-12 Class
 	// ASSIGNMENT: When you rotate 90 degress on Z, X and Y should look different.
-	matrix4 m4RotX = glm::rotate(IDENTITY_M4, m_v3Rotation.x, vector3(1.0f, 0.0f, 0.0f)); // last paramater is the axis you are rotating 
-	matrix4 m4RotY = glm::rotate(IDENTITY_M4, m_v3Rotation.y, vector3(0.0f, 1.0f, 0.0f));
-	matrix4 m4RotZ = glm::rotate(IDENTITY_M4, m_v3Rotation.z, vector3(0.0f, 0.0f, 1.0f));
-	quaternion q1 = glm::angleAxis(45.0f, vector3(1.0f, 0.0f, 0.0f));
-	matrix4 m4Model = m4RotX * m4RotZ * m4RotY;
-	//m4Model = ToMatrix4(q1);
+	//matrix4 m4RotX = glm::rotate(IDENTITY_M4, m_v3Rotation.x, vector3(1.0f, 0.0f, 0.0f)); // last paramater is the axis you are rotating 
+	//matrix4 m4RotY = glm::rotate(IDENTITY_M4, m_v3Rotation.y, vector3(0.0f, 1.0f, 0.0f));
+	//matrix4 m4RotZ = glm::rotate(IDENTITY_M4, m_v3Rotation.z, vector3(0.0f, 0.0f, 1.0f));
+
+	// Three quaternions for three different rotation axes of x, y, and z
+	quaternion q1 = glm::angleAxis(m_v3Rotation.x, vector3(1.0f, 0.0f, 0.0f));
+	quaternion q2 = glm::angleAxis(m_v3Rotation.y, vector3(0.0f, 1.0f, 0.0f));
+	quaternion q3 = glm::angleAxis(m_v3Rotation.z, vector3(0.0f, 0.0f, 1.0f));
+
+	//matrix4 m4Model = m4RotX * m4RotZ * m4RotY;
+
+	// getting the product of the above quaternians
+	quaternion product = q1 * q2 * q3;
+
+	// putting it into a matrix
+	matrix4 m4Model = ToMatrix4(product);
 
 	
 
