@@ -16,6 +16,8 @@ namespace Simplex
 
 class Application
 {
+	std::vector<matrix4*> m_m4List; // 10-31
+	MyMesh* m_pMesh = nullptr; // 10-31
 	MyCamera* m_pCamera = nullptr;
 	MyMeshManager* m_pMyMeshMngr = nullptr;
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
