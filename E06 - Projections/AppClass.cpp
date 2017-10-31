@@ -3,7 +3,7 @@ using namespace Simplex;
 void Application::InitVariables(void)
 {
 	////Change this to your name and email
-	//m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
+	m_sProgrammer = "Nicholas Bazos - ndb9897@rit.edu";
 
 	////Alberto needed this at this position for software recording.
 	//m_pWindow->setPosition(sf::Vector2i(710, 0));
@@ -57,21 +57,34 @@ void Application::Display(void)
 		break;
 	case 2:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false); // orthographic
 		break;
 	case 3:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false); // orthographic
+		m_pCamera->SetPositionTargetAndUp(vector3(10.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, -1.0f), vector3(0.0f, 0.0f, -1.0f));  // set position, target, and up
+
+		// set vertical and horizontoal planes
+		m_pCamera->SetHorizontalPlanes(vector2(-15.0f, 15.0f));
+		m_pCamera->SetVerticalPlanes(vector2(-15.0f, 15.0f));
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f)); // reverse position to behind the primitives
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f)); // reverse position to behind the primitives
+		m_pCamera->SetNearFar(vector2(5.0f, 15.0f)); // set the visible plane
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPosition(vector3(0.0f, 0.f, -15.0f)); // reverse position to behind the primitives
+		m_pCamera->SetNearFar(vector2(1.0f, 10.0f)); // set the visible plane
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetUp(vector3(0.0f, -1.0f, 0.0f)); // reverse what is up for the camera
 		break;
 	}
 

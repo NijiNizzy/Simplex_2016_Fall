@@ -14,7 +14,7 @@
     <ProjectGuid>{D284BD91-FD8C-44A9-B667-BBA4246878F4}</ProjectGuid>
     <RootNamespace>E04_NicholasBazos</RootNamespace>
     <ProjectName>E04_NicholasBazos</ProjectName>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
