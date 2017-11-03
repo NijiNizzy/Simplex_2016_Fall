@@ -154,3 +154,35 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 										m_v2NearFar.x, m_v2NearFar.y); //near and far
 	}
 }
+
+void Simplex::MyCamera::MoveCameraForward(float fSpeed)
+{
+	m_v3Position += m_v3Forward * fSpeed;
+	m_v3Target += m_v3Forward * fSpeed;;
+	m_v3Up += m_v3Forward * fSpeed;
+
+	m_v3Forward = glm::normalize(m_v3Target - m_v3Position);
+	m_v3Upward = glm::normalize(m_v3Up - m_v3Position);
+	m_v3Rightward = glm::normalize(glm::cross(m_v3Forward, m_v3Upward));
+
+	if (!m_bPerspective)
+	{
+		CalculateProjectionMatrix();
+	}
+}
+
+void Simplex::MyCamera::MoveCameraSideways(float fSpeed)
+{
+	m_v3Position += m_v3Rightward * fSpeed;
+	m_v3Target += m_v3Rightward * fSpeed;;
+	m_v3Up += m_v3Rightward * fSpeed;
+
+	m_v3Forward = glm::normalize(m_v3Target - m_v3Position);
+	m_v3Upward = glm::normalize(m_v3Up - m_v3Position);
+	m_v3Rightward = glm::normalize(glm::cross(m_v3Forward, m_v3Upward));
+
+	if (!m_bPerspective)
+	{
+		CalculateProjectionMatrix();
+	}
+}
