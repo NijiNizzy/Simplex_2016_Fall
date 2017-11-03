@@ -23,21 +23,19 @@ void Application::InitVariables(void)
 	m_pMyMeshMngr = MyMeshManager::GetInstance();
 	m_pMyMeshMngr->SetCamera(m_pCamera);
 	
-	// 10-31
 	m_pMesh = new MyMesh();
 	m_pMesh->GenerateCylinder(1.0f, 2.0f, 6, C_PURPLE);
-
-	// Cannot move because it only runs once and does not update the ArcBall
 	
-	for (uint i = 0; i < 5000; i++)
+	for (uint i = 0; i < 1; ++i)
 	{
 		matrix4* pMatrix = new matrix4();
-		*pMatrix = glm::translate(IDENTITY_M4, vector3(i * 2.0f, 0, 0)) * ToMatrix4(m_qArcBall);
+		*pMatrix = glm::translate(IDENTITY_M4, vector3(i * 2.0f, 0.0f, 0.0f));
 		m_m4List.push_back(pMatrix);
 	}
-	
 
-	//m_m4List.push_back(glm::translate(IDENTITY_M4, vector3(i * 2.0f, 0, 0)) * ToMatrix4(m_qArcBall));
+	m_pRB = new MyRigidBody(m_pMesh);
+
+		//m_m4List.push_back(glm::translate(IDENTITY_M4, vector3(i * 2.0f, 0.0f, 0.0f)) * ToMatrix4(m_qArcBall));
 }
 void Application::Update(void)
 {
@@ -69,18 +67,19 @@ void Application::Display(void)
 	//Clear the screen
 	ClearScreen();
 
-	// 10-31
 	/*
-	 *6 frames
-	for (uint i = 0; i < 5000; i++)
-	{
-		m_pMesh->Render(m_pCamera, glm::translate(IDENTITY_M4, vector3(i * 2.0f,0,0)) * ToMatrix4(m_qArcBall));
-	}
+	for(uint i = 0; i < 5000; ++i)
+		m_pMesh->Render(m_pCamera, glm::translate(IDENTITY_M4, vector3(i * 2.0f,0.0f,0.0f)) * ToMatrix4(m_qArcBall));
 	*/
-
+	/*
+		for (uint i = 0; i < 5000; ++i)
+			*m_m4List[i] = glm::translate(IDENTITY_M4, vector3(i * 2.0f, 0.0f, 0.0f)) * ToMatrix4(m_qArcBall);
+	*/
+	*m_m4List[0] = ToMatrix4(m_qArcBall);
 	m_pMesh->Render(m_pCamera, m_m4List);
-	
 
+	m_pRB->Render(m_pCamera, *m_m4List[0]);
+	
 	//Render the list of MyMeshManager
 	m_pMyMeshMngr->Render();
 
@@ -101,10 +100,12 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-	for (uint i = 0; i < 5000; i++)
+	for (uint i = 0; i < m_m4List.size(); ++i)
 	{
 		SafeDelete(m_m4List[i]);
 	}
+
+	SafeDelete(m_pRB);
 
 	//release the singleton
 	MyMeshManager::ReleaseInstance();

@@ -390,8 +390,42 @@ void MyMesh::Render(MyCamera* a_pCamera, matrix4 a_mModel)
 {
 	Render(a_pCamera->GetProjectionMatrix(), a_pCamera->GetViewMatrix(), a_mModel);
 }
+void MyMesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel)
+{
+	// Use the buffer and shader
+	GLuint nShader = m_pShaderMngr->GetShaderID("Basic");
+	glUseProgram(nShader);
 
-void Simplex::MyMesh::Render(MyCamera * a_pCamera, std::vector<matrix4*> a_ToWorldList)
+	//Bind the VAO of this object
+	glBindVertexArray(m_VAO);
+
+	// Get the GPU variables by their name and hook them to CPU variables
+	GLuint MVP = glGetUniformLocation(nShader, "MVP");
+	GLuint wire = glGetUniformLocation(nShader, "wire");
+
+	//Final Projection of the Camera
+	matrix4 m4MVP = a_mProjection * a_mView * a_mModel;
+	glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(m4MVP));
+
+	//Solid
+	glUniform3f(wire, -1.0f, -1.0f, -1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glDrawArrays(GL_TRIANGLES, 0, m_uVertexCount);
+
+	//Wire
+	glUniform3f(wire, 1.0f, 0.0f, 1.0f);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glEnable(GL_POLYGON_OFFSET_LINE);
+	glPolygonOffset(-1.f, -1.f);
+	glDrawArrays(GL_TRIANGLES, 0, m_uVertexCount);
+	glDisable(GL_POLYGON_OFFSET_LINE);
+
+	//Set the fill back to solid
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glBindVertexArray(0);// Unbind VAO so it does not get in the way of other objects
+}
+void MyMesh::Render(MyCamera* a_pCamera, std::vector<matrix4*> a_ToWorldList)
 {
 	int nElements = a_ToWorldList.size();//count elements to render
 	if (nElements > 0)
@@ -474,43 +508,6 @@ void Simplex::MyMesh::Render(MyCamera * a_pCamera, std::vector<matrix4*> a_ToWor
 			fTransformsArray = nullptr;
 		}
 	}
-}
-
-
-void MyMesh::Render(matrix4 a_mProjection, matrix4 a_mView, matrix4 a_mModel)
-{
-	// Use the buffer and shader
-	GLuint nShader = m_pShaderMngr->GetShaderID("Basic");
-	glUseProgram(nShader);
-
-	//Bind the VAO of this object
-	glBindVertexArray(m_VAO);
-
-	// Get the GPU variables by their name and hook them to CPU variables
-	GLuint MVP = glGetUniformLocation(nShader, "MVP");
-	GLuint wire = glGetUniformLocation(nShader, "wire");
-
-	//Final Projection of the Camera
-	matrix4 m4MVP = a_mProjection * a_mView * a_mModel;
-	glUniformMatrix4fv(MVP, 1, GL_FALSE, glm::value_ptr(m4MVP));
-
-	//Solid
-	glUniform3f(wire, -1.0f, -1.0f, -1.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	glDrawArrays(GL_TRIANGLES, 0, m_uVertexCount);
-
-	//Wire
-	glUniform3f(wire, 1.0f, 0.0f, 1.0f);
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	glEnable(GL_POLYGON_OFFSET_LINE);
-	glPolygonOffset(-1.f, -1.f);
-	glDrawArrays(GL_TRIANGLES, 0, m_uVertexCount);
-	glDisable(GL_POLYGON_OFFSET_LINE);
-
-	//Set the fill back to solid
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-	glBindVertexArray(0);// Unbind VAO so it does not get in the way of other objects
 }
 void Simplex::MyMesh::Render(MyCamera * a_pCamera, std::vector<matrix4> a_ToWorldList)
 {
@@ -596,3 +593,4 @@ void Simplex::MyMesh::Render(MyCamera * a_pCamera, std::vector<matrix4> a_ToWorl
 		}
 	}
 }
+std::vector<vector3> MyMesh::GetVertexList(void){ return m_lVertexPos; }

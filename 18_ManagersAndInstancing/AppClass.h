@@ -11,13 +11,16 @@ Date: 2017/05
 #include "imgui\ImGuiObject.h"
 
 #include "MyMeshManager.h"
+#include "MyRigidBody.h"
+
 namespace Simplex
 {
 
 class Application
 {
-	std::vector<matrix4*> m_m4List; // 10-31
-	MyMesh* m_pMesh = nullptr; // 10-31
+	MyRigidBody* m_pRB = nullptr;
+	std::vector<matrix4*> m_m4List;
+	MyMesh* m_pMesh = nullptr;
 	MyCamera* m_pCamera = nullptr;
 	MyMeshManager* m_pMyMeshMngr = nullptr;
 	String m_sProgrammer = "Alberto Bobadilla - labigm@rit.edu";
