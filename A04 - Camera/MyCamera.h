@@ -15,7 +15,7 @@ class MyCamera
 	vector3 m_v3Position = vector3(0.0f, 0.0f, 10.0f); //Where my camera is located
 	vector3 m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	vector3 m_v3Up = vector3(0.0f, 1.0f, 0.0f); //What is up
-	vector3 m_v3Upward = ZERO_V3; // normalize(m_v3Up - m_v3Position)
+	vector3 m_v3Upward = vector3(0.0f, 1.0f, 0.0f);; // normalize(m_v3Up - m_v3Position)
 	vector3 m_v3Forward = vector3(0.0f, 0.0f, 1.0f); // what is forward
 	vector3 m_v3Rightward = vector3(1.0f, 0.0f, 0.0f); // what is right
 
@@ -214,6 +214,16 @@ public:
 	OUTPUT: ---
 	*/
 	void CalculateProjectionMatrix(void);
+
+	/*
+	Rotate Camera on the Y-Axis
+	*/
+	void ChangeCameraYaw(float fAngleY);
+
+	/*
+	Rotate Camera on the X-Axis
+	*/
+	void ChangeCameraPitch(float fAngleX);
 
 	/*
 	Move Camera Forward and Back

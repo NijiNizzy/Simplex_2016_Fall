@@ -136,7 +136,7 @@ void Simplex::MyCamera::SetPositionTargetAndUp(vector3 a_v3Position, vector3 a_v
 void Simplex::MyCamera::CalculateViewMatrix(void)
 {
 	//Calculate the look at
-	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Up);
+	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
 }
 
 void Simplex::MyCamera::CalculateProjectionMatrix(void)
@@ -153,6 +153,32 @@ void Simplex::MyCamera::CalculateProjectionMatrix(void)
 										m_v2Vertical.x, m_v2Vertical.y, //vertical
 										m_v2NearFar.x, m_v2NearFar.y); //near and far
 	}
+}
+
+void Simplex::MyCamera::ChangeCameraYaw(float fAngleY)
+{
+	glm::quat axis = glm::angleAxis(1.0f, fAngleY * vector3(0.0f, 1.0f, 0.0f));
+	
+	glm::quat orientation = glm::normalize(axis);
+	glm::mat4 rotate = glm::mat4_cast(orientation);
+
+	glm::mat4 translate = glm::mat4(1.0f);
+	translate = glm::translate(translate, -m_v3Position);
+
+	m_m4View = rotate * translate;
+}
+
+void Simplex::MyCamera::ChangeCameraPitch(float fAngleX)
+{
+	glm::quat axis = glm::angleAxis(1.0f, fAngleX * vector3(1.0f, 0.0f, 0.0f));
+
+	glm::quat orientation = glm::normalize(axis);
+	glm::mat4 rotate = glm::mat4_cast(orientation);
+
+	glm::mat4 translate = glm::mat4(1.0f);
+	translate = glm::translate(translate, -m_v3Position);
+
+	m_m4View = rotate * translate;
 }
 
 void Simplex::MyCamera::MoveCameraForward(float fSpeed)
