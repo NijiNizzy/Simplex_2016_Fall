@@ -218,12 +218,12 @@ public:
 	/*
 	Rotate Camera on the Y-Axis
 	*/
-	void ChangeCameraYaw(float fAngleY);
+	void ChangeCameraYawAndPitch(float fAngleY, float fAngleX);
 
 	/*
 	Rotate Camera on the X-Axis
 	*/
-	void ChangeCameraPitch(float fAngleX);
+	//void ChangeCameraPitch(float fAngleX);
 
 	/*
 	Move Camera Forward and Back

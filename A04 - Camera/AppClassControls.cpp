@@ -368,9 +368,11 @@ void Application::CameraRotation(float a_fSpeed)
 		fDeltaMouse = static_cast<float>(MouseY - CenterY);
 		fAngleX += fDeltaMouse * a_fSpeed;
 	}
+
 	//Change the Yaw and the Pitch of the camera
-	m_pCamera->ChangeCameraYaw(fAngleY * 3.0f);
-	m_pCamera->ChangeCameraPitch(-fAngleX * 3.0f);
+	//gluLookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, 0.0f, 1.0f, 0.0f);
+	m_pCamera->ChangeCameraYawAndPitch(fAngleY * 3.0f, -fAngleX * 3.0f);
+	//m_pCamera->ChangeCameraPitch(-fAngleX * 3.0f);
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -388,6 +390,7 @@ void Application::ProcessKeyboard(void)
 	if (fMultiplier)
 		fSpeed *= 5.0f;
 
+	// Camera movement
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
 		m_pCamera->MoveCameraForward(fSpeed);
