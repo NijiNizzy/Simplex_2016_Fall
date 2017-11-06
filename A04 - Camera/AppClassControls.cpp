@@ -370,9 +370,8 @@ void Application::CameraRotation(float a_fSpeed)
 	}
 
 	//Change the Yaw and the Pitch of the camera
-	//gluLookAt(pos.x, pos.y, pos.z, target.x, target.y, target.z, 0.0f, 1.0f, 0.0f);
-	m_pCamera->ChangeCameraYawAndPitch(fAngleY * 3.0f, -fAngleX * 3.0f);
-	//m_pCamera->ChangeCameraPitch(-fAngleX * 3.0f);
+	m_pCamera->ChangeCameraYawAndPitch(fAngleY, -fAngleX); // pass in -fAngleX so that it is not inverted
+
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
 }
 //Keyboard
@@ -391,18 +390,23 @@ void Application::ProcessKeyboard(void)
 		fSpeed *= 5.0f;
 
 	// Camera movement
+
+	// Forward
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 	{
 		m_pCamera->MoveCameraForward(fSpeed);
 	}
+	// Backward
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 	{
 		m_pCamera->MoveCameraForward(-fSpeed);
 	}
+	// Left
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 	{
 		m_pCamera->MoveCameraSideways(-fSpeed);
 	}
+	// Right
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
 		m_pCamera->MoveCameraSideways(fSpeed);

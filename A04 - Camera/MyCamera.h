@@ -15,9 +15,9 @@ class MyCamera
 	vector3 m_v3Position = vector3(0.0f, 0.0f, 10.0f); //Where my camera is located
 	vector3 m_v3Target = vector3(0.0f, 0.0f, 0.0f); //What I'm looking at
 	vector3 m_v3Up = vector3(0.0f, 1.0f, 0.0f); //What is up
-	vector3 m_v3Upward = vector3(0.0f, 1.0f, 0.0f);; // normalize(m_v3Up - m_v3Position)
-	vector3 m_v3Forward = vector3(0.0f, 0.0f, 1.0f); // what is forward
-	vector3 m_v3Rightward = vector3(1.0f, 0.0f, 0.0f); // what is right
+	vector3 m_v3Upward = vector3(0.0f, 1.0f, 0.0f);; // What is up that is updated to normalize(m_v3Up - m_v3Position)
+	vector3 m_v3Forward = vector3(0.0f, 0.0f, 1.0f); // What is forward
+	vector3 m_v3Rightward = vector3(1.0f, 0.0f, 0.0f); // What is right
 
 	bool m_bPerspective = true; //perspective view? False is Orthographic
 
@@ -216,14 +216,9 @@ public:
 	void CalculateProjectionMatrix(void);
 
 	/*
-	Rotate Camera on the Y-Axis
+	Rotate Camera on the Y-Axis and the X-Axis
 	*/
 	void ChangeCameraYawAndPitch(float fAngleY, float fAngleX);
-
-	/*
-	Rotate Camera on the X-Axis
-	*/
-	//void ChangeCameraPitch(float fAngleX);
 
 	/*
 	Move Camera Forward and Back
