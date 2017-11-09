@@ -85,8 +85,86 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 	
 	//your code goes here---------------------
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
+	//a vector of vector3s to hold the vertices (points) of the bounding box
+	std::vector<vector3> v3Vertices;
+
+	//Back square
+	v3Vertices.push_back(m_v3MinL);										//bottom-left corner
+	v3Vertices.push_back(vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z));	//bottom-right corner
+	v3Vertices.push_back(vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z));	//top-left corner
+	v3Vertices.push_back(vector3(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z));	//top-right corner
+
+	//Front square
+	v3Vertices.push_back(vector3(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z));	//bottom-left corner
+	v3Vertices.push_back(vector3(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z));	//bottom-right corner
+	v3Vertices.push_back(vector3(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z));	//top-left corner
+	v3Vertices.push_back(m_v3MaxL);										//top-right corner
+
+	//Loop through the vector and place the points in the world space
+	for (uint i = 0; i < v3Vertices.size(); i++)
+	{
+		//multiply the points (within a vector4) by the world matrix
+		v3Vertices[i] = vector3(m_m4ToWorld * vector4(v3Vertices[i], 1.0f)); 
+	}
+
+	//set the max and min points as the first vertex
+	m_v3MaxG = v3Vertices[0];
+	m_v3MinG = v3Vertices[0];
+
+	//set the max and min for the newly created world box
+	for (uint i = 1; i < v3Vertices.size(); ++i)
+	{
+		/*
+		 *if the x component of the max point is less 
+		 *than the x component of the vertex passed in
+		 *set the max x component to that of the checked x component
+		 *otherwise check if the x component of the min point
+		 *is less than than the x component of the vertex passed in
+		 *if so set the min x component to that of the checked x component
+		*/
+		if (m_v3MaxG.x < v3Vertices[i].x)
+		{
+			m_v3MaxG.x = v3Vertices[i].x;
+		}
+		else if (m_v3MinG.x > v3Vertices[i].x)
+		{
+			m_v3MinG.x = v3Vertices[i].x;
+		}
+
+		/*
+		*if the y component of the max point is less
+		*than the y component of the vertex passed in
+		*set the max y component to that of the checked y component
+		*otherwise check if the y component of the min point
+		*is less than than the y component of the vertex passed in
+		*if so set the min y component to that of the checked y component
+		*/
+		if (m_v3MaxG.y < v3Vertices[i].y)
+		{
+			m_v3MaxG.y = v3Vertices[i].y;
+		}
+		else if (m_v3MinG.y > v3Vertices[i].y)
+		{
+			m_v3MinG.y = v3Vertices[i].y;
+		}
+
+		/*
+		*if the z component of the max point is less
+		*than the z component of the vertex passed in
+		*set the max x component to that of the checked z component
+		*otherwise check if the z component of the min point
+		*is less than than the z component of the vertex passed in
+		*if so set the min z component to that of the checked z component
+		*/
+		if (m_v3MaxG.z < v3Vertices[i].z)
+		{
+			m_v3MaxG.z = v3Vertices[i].z;
+		}
+		else if (m_v3MinG.z > v3Vertices[i].z)
+		{
+			m_v3MinG.z = v3Vertices[i].z;
+		}
+	}
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors
