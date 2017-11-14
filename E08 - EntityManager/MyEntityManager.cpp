@@ -4,9 +4,19 @@ using namespace Simplex;
 MyEntityManager* MyEntityManager::m_pInstance = nullptr;
 void MyEntityManager::Init(void)
 {
+	m_uEntityCount = 0;
+	m_entityList.clear();
+
 }
 void MyEntityManager::Release(void)
 {
+	for (uint uEntity = 0; uEntity < m_uEntityCount; uEntity++)
+	{
+		MyEntity* pEntity = m_entityList[uEntity];
+		SafeDelete(pEntity);
+	}
+	m_uEntityCount = 0;
+	m_entityList.clear();
 }
 MyEntityManager* MyEntityManager::GetInstance()
 {
@@ -18,15 +28,38 @@ MyEntityManager* MyEntityManager::GetInstance()
 }
 void MyEntityManager::ReleaseInstance()
 {
+	if (m_pInstance != nullptr)
+	{
+		delete m_pInstance;
+		m_pInstance = nullptr; 
+	}
 }
 int Simplex::MyEntityManager::GetEntityIndex(String a_sUniqueID)
 {
+	for (uint uIndex = 0; uIndex < m_uEntityCount; uIndex++)
+	{
+		if (a_sUniqueID == m_entityList[uIndex]->GetUniqueID())
+		{
+			return uIndex;
+		}
+	}
 	return -1;
 }
 //Accessors
 Model* Simplex::MyEntityManager::GetModel(uint a_uIndex)
 {
-	return nullptr;
+	if (m_entityList.size() == 0)
+	{
+		return nullptr;
+	}
+
+	if (a_uIndex >= m_uEntityCount)
+	{
+		a_uIndex = m_uEntityCount - 1;
+	}
+
+	return m_entityList[a_uIndex]->GetModel();
+	
 }
 Model* Simplex::MyEntityManager::GetModel(String a_sUniqueID)
 {
