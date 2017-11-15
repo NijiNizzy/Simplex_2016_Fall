@@ -318,7 +318,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	// put centerToCenter vector into A's coordinate frame
 	// centerToCenter = vector3(glm::dot(centerToCenter, a.u[0]), glm::dot(centerToCenter, a.u[2]), glm::dot(centerToCenter, a.u[2]));
 
-	// compute subexpressions and take into account arithmetic erros when two edges are parallel by adding epsilon
+	// compute subexpressions and take into account arithmetic errors when two edges are parallel by adding epsilon
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
@@ -441,7 +441,6 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	}
 
 	// **BEWARE THE CROSS PORDUCT WILL GIVE A ZERO VECTOR WHEN ANY TWO ACES BETWEEN THE OBJECTS POINT IN THE SAME DIRECTION (AS STATED ABOVE)**
-
 
 	//there is no axis test that separates this two objects
 	//return eSATResults::SAT_NONE;
