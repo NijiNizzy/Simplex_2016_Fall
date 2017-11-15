@@ -287,6 +287,163 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
 
+	// Important Notes from the Real Time Collision Detection: 
+	// a separating axis is formed by taking the cross product of an edge from each bounding box 
+	// -> fix for parallel edges: add a small epsilon value to the absolute values of the matrix elements occuring on the right-hand side of the inequalities 
+	// **THE AXES TO TEST ARE THE NORMALS OF EACH SHAPE'S EDGES** 
+	// 3 axes from object A (face normals), 3 axes from object B (face normals), 9 axes from the pairs of edges
+	// of A and edges of B (cross products of the edges of A and edges of B) = 15 axes
+
+	// radii for Object A and Object B
+	float radiusA;
+	float radiusB;
+
+	// rotation matrix and absolute rotation matrix
+	matrix3 rotation;
+	matrix3 absoluteRotation;
+
+	// rotation matrix to put object B in A's coordinate frame
+	// looping through the three axes
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			//rotation[i][j] = glm::dot(this.u[i], 	a_pOther.u[i]);
+		}
+	}
+
+	// vector containing the distance from object B's center to object A's center
+	vector3 centerToCenter = a_pOther->GetCenterGlobal() - this->GetCenterGlobal();
+
+	// put centerToCenter vector into A's coordinate frame
+	// centerToCenter = vector3(glm::dot(centerToCenter, a.u[0]), glm::dot(centerToCenter, a.u[2]), glm::dot(centerToCenter, a.u[2]));
+
+	// compute subexpressions and take into account arithmetic erros when two edges are parallel by adding epsilon
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			absoluteRotation[i][j] = abs(rotation[i][j]) + FLT_EPSILON;
+		}
+	}
+
+	// test A's x-axis (A0)
+
+	// test A's y-axis (A1)
+
+	// test A's z-axis (A2)
+
+	for (int i = 0; i < 3; i++)
+	{
+		//radiusA = a.e[i];
+		//radiusB = b.e[0] * absoluteRotation[i][0] + b.e[1] * absoluteRotation[i][1] + b.e[2] * absoluteRotation[i][2];
+		if (abs(centerToCenter[i]) > (radiusA + radiusB))
+		{
+			return 0;
+		}
+	}
+
+	// test B's x-axis (B0)
+
+	// test B's y-axis (B1)
+
+	// test B's z-axis (B2)
+
+	for (int i = 0; i < 3; i++)
+	{
+		//radiusA = a.e[0] * absoluteRotation[0][i] + a.e[1] * absoluteRotation[1][i] + a.e[2] * absoluteRotation[2][i];
+		//radiusB = b.e[i];
+		if (abs(centerToCenter[0] * rotation[0][i] + centerToCenter[1] * rotation[1][i] + centerToCenter[2] * rotation[2][i]) > (radiusA + radiusB))
+		{
+			return 0;
+		}
+	}
+
+	// test cross(A0, B0)
+
+	//radiusA = a.e[1] * absoluteRotation[2][0] + a.e[2] * absoluteRotation[1][0];
+	//radiusB = b.e[1] * absoluteRotation[0][2] + b.e[2] * absoluteRotation[0][1];
+	if (abs(centerToCenter[2] * rotation[1][0] - centerToCenter[1] * rotation[2][0]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A0, B1)
+
+	//radiusA = a.e[1] * absoluteRotation[2][1] + a.e[2] * absoluteRotation[1][1];
+	//radiusB = b.e[0] * absoluteRotation[0][2] + b.e[2] * absoluteRotation[0][0];
+	if (abs(centerToCenter[2] * rotation[1][1] - centerToCenter[1] * rotation[2][1]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A0, B2)
+
+	//radiusA = a.e[1] * absoluteRotation[2][2] + a.e[2] * absoluteRotation[1][2];
+	//radiusB = b.e[0] * absoluteRotation[0][1] + b.e[1] * absoluteRotation[0][0];
+	if (abs(centerToCenter[2] * rotation[1][2] - centerToCenter[1] * rotation[2][2]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A1, B0)
+
+	//radiusA = a.e[0] * absoluteRotation[2][0] + a.e[2] * absoluteRotation[0][0];
+	//radiusB = b.e[1] * absoluteRotation[1][2] + b.e[2] * absoluteRotation[1][1];
+	if (abs(centerToCenter[0] * rotation[2][0] - centerToCenter[2] * rotation[0][0]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A1, B1)
+
+	//radiusA = a.e[0] * absoluteRotation[2][1] + a.e[2] * absoluteRotation[0][1];
+	//radiusB = b.e[0] * absoluteRotation[1][2] + b.e[2] * absoluteRotation[1][0];
+	if (abs(centerToCenter[0] * rotation[2][1] - centerToCenter[2] * rotation[0][1]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A1, B2)
+
+	//radiusA = a.e[0] * absoluteRotation[2][2] + a.e[2] * absoluteRotation[0][2];
+	//radiusB = b.e[0] * absoluteRotation[1][1] + b.e[1] * absoluteRotation[1][0];
+	if (abs(centerToCenter[0] * rotation[2][2] - centerToCenter[2] * rotation[0][2]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A2, B0)
+
+	//radiusA = a.e[0] * absoluteRotation[1][0] + a.e[1] * absoluteRotation[0][0];
+	//radiusB = b.e[1] * absoluteRotation[2][2] + b.e[2] * absoluteRotation[2][1];
+	if (abs(centerToCenter[1] * rotation[0][0] - centerToCenter[0] * rotation[1][0]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A2, B1)
+
+	//radiusA = a.e[0] * absoluteRotation[1][1] + a.e[1] * absoluteRotation[0][1];
+	//radiusB = b.e[0] * absoluteRotation[2][2] + b.e[2] * absoluteRotation[2][0];
+	if (abs(centerToCenter[1] * rotation[0][1] - centerToCenter[0] * rotation[1][1]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// test cross(A2, B2)
+
+	//radiusA = a.e[0] * absoluteRotation[1][2] + a.e[1] * absoluteRotation[0][2];
+	//radiusB = b.e[0] * absoluteRotation[2][1] + b.e[1] * absoluteRotation[2][0];
+	if (abs(centerToCenter[1] * rotation[0][2] - centerToCenter[0] * rotation[1][2]) > (radiusA + radiusB))
+	{
+		return 0;
+	}
+
+	// **BEWARE THE CROSS PORDUCT WILL GIVE A ZERO VECTOR WHEN ANY TWO ACES BETWEEN THE OBJECTS POINT IN THE SAME DIRECTION (AS STATED ABOVE)**
+
+
 	//there is no axis test that separates this two objects
-	return eSATResults::SAT_NONE;
+	//return eSATResults::SAT_NONE;
+	return 1;
 }
