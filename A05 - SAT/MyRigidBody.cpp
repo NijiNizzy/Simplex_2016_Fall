@@ -276,17 +276,6 @@ void MyRigidBody::AddToRenderList(void)
 
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
-	/*
-	Your code goes here instead of this comment;
-
-	For this method, if there is an axis that separates the two objects
-	then the return will be different than 0; 1 for any separating axis
-	is ok if you are not going for the extra credit, if you could not
-	find a separating axis you need to return 0, there is an enum in
-	Simplex that might help you [eSATResults] feel free to use it.
-	(eSATResults::SAT_NONE has a value of 0)
-	*/
-
 	// Important Notes from the Real Time Collision Detection: 
 	// a separating axis is formed by taking the cross product of an edge from each bounding box 
 	// -> fix for parallel edges: add a small epsilon value to the absolute values of the matrix elements occuring on the right-hand side of the inequalities 
@@ -302,13 +291,26 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	matrix3 rotation;
 	matrix3 absoluteRotation;
 
+	// arrays of model coords for Object A and Object B
+	vector3 uA[3];
+	vector3 uB[3];
+
+	// calculating the model coords
+	uA[0] = vector3(this->m_m4ToWorld * vector4(AXIS_X, 0));
+	uA[1] = vector3(this->m_m4ToWorld * vector4(AXIS_Y, 0));
+	uA[2] = vector3(this->m_m4ToWorld * vector4(AXIS_Z, 0));
+
+	uB[0] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_X, 0));
+	uB[1] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_Y, 0));
+	uB[2] = vector3(a_pOther->m_m4ToWorld * vector4(AXIS_Z, 0));
+
 	// rotation matrix to put object B in A's coordinate frame
 	// looping through the three axes
 	for (int i = 0; i < 3; i++)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			//rotation[i][j] = glm::dot(this.u[i], 	a_pOther.u[i]);
+			rotation[i][j] = glm::dot(uA[i], uB[i]);
 		}
 	}
 
@@ -316,7 +318,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	vector3 centerToCenter = a_pOther->GetCenterGlobal() - this->GetCenterGlobal();
 
 	// put centerToCenter vector into A's coordinate frame
-	// centerToCenter = vector3(glm::dot(centerToCenter, a.u[0]), glm::dot(centerToCenter, a.u[2]), glm::dot(centerToCenter, a.u[2]));
+	centerToCenter = vector3(glm::dot(centerToCenter, uA[0]), glm::dot(centerToCenter, uA[2]), glm::dot(centerToCenter, uA[2]));
 
 	// compute subexpressions and take into account arithmetic errors when two edges are parallel by adding epsilon
 	for (int i = 0; i < 3; i++)
@@ -335,8 +337,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	for (int i = 0; i < 3; i++)
 	{
-		//radiusA = a.e[i];
-		//radiusB = b.e[0] * absoluteRotation[i][0] + b.e[1] * absoluteRotation[i][1] + b.e[2] * absoluteRotation[i][2];
+		radiusA = this->m_v3HalfWidth[i];
+		radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[i][0] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[i][1] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[i][2];
 		if (abs(centerToCenter[i]) > (radiusA + radiusB))
 		{
 			return 0;
@@ -351,8 +353,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	for (int i = 0; i < 3; i++)
 	{
-		//radiusA = a.e[0] * absoluteRotation[0][i] + a.e[1] * absoluteRotation[1][i] + a.e[2] * absoluteRotation[2][i];
-		//radiusB = b.e[i];
+		radiusA = this->m_v3HalfWidth[0] * absoluteRotation[0][i] + this->m_v3HalfWidth[1] * absoluteRotation[1][i] + this->m_v3HalfWidth[2] * absoluteRotation[2][i];
+		radiusB = a_pOther->m_v3HalfWidth[i];
 		if (abs(centerToCenter[0] * rotation[0][i] + centerToCenter[1] * rotation[1][i] + centerToCenter[2] * rotation[2][i]) > (radiusA + radiusB))
 		{
 			return 0;
@@ -361,8 +363,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A0, B0)
 
-	//radiusA = a.e[1] * absoluteRotation[2][0] + a.e[2] * absoluteRotation[1][0];
-	//radiusB = b.e[1] * absoluteRotation[0][2] + b.e[2] * absoluteRotation[0][1];
+	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][0] + this->m_v3HalfWidth[2] * absoluteRotation[1][0];
+	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[0][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[0][1];
 	if (abs(centerToCenter[2] * rotation[1][0] - centerToCenter[1] * rotation[2][0]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -370,8 +372,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A0, B1)
 
-	//radiusA = a.e[1] * absoluteRotation[2][1] + a.e[2] * absoluteRotation[1][1];
-	//radiusB = b.e[0] * absoluteRotation[0][2] + b.e[2] * absoluteRotation[0][0];
+	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][1] + this->m_v3HalfWidth[2] * absoluteRotation[1][1];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[0][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[0][0];
 	if (abs(centerToCenter[2] * rotation[1][1] - centerToCenter[1] * rotation[2][1]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -379,8 +381,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A0, B2)
 
-	//radiusA = a.e[1] * absoluteRotation[2][2] + a.e[2] * absoluteRotation[1][2];
-	//radiusB = b.e[0] * absoluteRotation[0][1] + b.e[1] * absoluteRotation[0][0];
+	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][2] + this->m_v3HalfWidth[2] * absoluteRotation[1][2];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[0][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[0][0];
 	if (abs(centerToCenter[2] * rotation[1][2] - centerToCenter[1] * rotation[2][2]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -388,8 +390,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A1, B0)
 
-	//radiusA = a.e[0] * absoluteRotation[2][0] + a.e[2] * absoluteRotation[0][0];
-	//radiusB = b.e[1] * absoluteRotation[1][2] + b.e[2] * absoluteRotation[1][1];
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][0] + this->m_v3HalfWidth[2] * absoluteRotation[0][0];
+	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[1][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[1][1];
 	if (abs(centerToCenter[0] * rotation[2][0] - centerToCenter[2] * rotation[0][0]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -397,17 +399,17 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A1, B1)
 
-	//radiusA = a.e[0] * absoluteRotation[2][1] + a.e[2] * absoluteRotation[0][1];
-	//radiusB = b.e[0] * absoluteRotation[1][2] + b.e[2] * absoluteRotation[1][0];
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][1] + this->m_v3HalfWidth[2] * absoluteRotation[0][1];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[1][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[1][0];
 	if (abs(centerToCenter[0] * rotation[2][1] - centerToCenter[2] * rotation[0][1]) > (radiusA + radiusB))
 	{
 		return 0;
 	}
 
 	// test cross(A1, B2)
-
-	//radiusA = a.e[0] * absoluteRotation[2][2] + a.e[2] * absoluteRotation[0][2];
-	//radiusB = b.e[0] * absoluteRotation[1][1] + b.e[1] * absoluteRotation[1][0];
+	
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][2] + this->m_v3HalfWidth[2] * absoluteRotation[0][2];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[1][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[1][0];
 	if (abs(centerToCenter[0] * rotation[2][2] - centerToCenter[2] * rotation[0][2]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -415,8 +417,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A2, B0)
 
-	//radiusA = a.e[0] * absoluteRotation[1][0] + a.e[1] * absoluteRotation[0][0];
-	//radiusB = b.e[1] * absoluteRotation[2][2] + b.e[2] * absoluteRotation[2][1];
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][0] + this->m_v3HalfWidth[1] * absoluteRotation[0][0];
+	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[2][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[2][1];
 	if (abs(centerToCenter[1] * rotation[0][0] - centerToCenter[0] * rotation[1][0]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -424,8 +426,8 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A2, B1)
 
-	//radiusA = a.e[0] * absoluteRotation[1][1] + a.e[1] * absoluteRotation[0][1];
-	//radiusB = b.e[0] * absoluteRotation[2][2] + b.e[2] * absoluteRotation[2][0];
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][1] + this->m_v3HalfWidth[1] * absoluteRotation[0][1];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[2][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[2][0];
 	if (abs(centerToCenter[1] * rotation[0][1] - centerToCenter[0] * rotation[1][1]) > (radiusA + radiusB))
 	{
 		return 0;
@@ -433,16 +435,13 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 
 	// test cross(A2, B2)
 
-	//radiusA = a.e[0] * absoluteRotation[1][2] + a.e[1] * absoluteRotation[0][2];
-	//radiusB = b.e[0] * absoluteRotation[2][1] + b.e[1] * absoluteRotation[2][0];
+	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][2] + this->m_v3HalfWidth[1] * absoluteRotation[0][2];
+	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[2][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[2][0];
 	if (abs(centerToCenter[1] * rotation[0][2] - centerToCenter[0] * rotation[1][2]) > (radiusA + radiusB))
 	{
 		return 0;
 	}
 
-	// **BEWARE THE CROSS PORDUCT WILL GIVE A ZERO VECTOR WHEN ANY TWO ACES BETWEEN THE OBJECTS POINT IN THE SAME DIRECTION (AS STATED ABOVE)**
-
-	//there is no axis test that separates this two objects
-	//return eSATResults::SAT_NONE;
+	// there is an axis that separates the two objects
 	return 1;
 }
