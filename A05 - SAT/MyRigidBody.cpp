@@ -310,7 +310,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			rotation[i][j] = glm::dot(uA[i], uB[i]);
+			rotation[i][j] = glm::dot(uA[i], uB[j]);
 		}
 	}
 
@@ -318,7 +318,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	vector3 centerToCenter = a_pOther->GetCenterGlobal() - this->GetCenterGlobal();
 
 	// put centerToCenter vector into A's coordinate frame
-	centerToCenter = vector3(glm::dot(centerToCenter, uA[0]), glm::dot(centerToCenter, uA[2]), glm::dot(centerToCenter, uA[2]));
+	centerToCenter = vector3(glm::dot(centerToCenter, uA[0]), glm::dot(centerToCenter, uA[1]), glm::dot(centerToCenter, uA[2]));
 
 	// compute subexpressions and take into account arithmetic errors when two edges are parallel by adding epsilon
 	for (int i = 0; i < 3; i++)
@@ -329,119 +329,100 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 		}
 	}
 
-	// test A's x-axis (A0)
-
-	// test A's y-axis (A1)
-
-	// test A's z-axis (A2)
-
+	// test A's x-axis (A0) & test A's y-axis (A1) & test A's z-axis (A2) 
 	for (int i = 0; i < 3; i++)
 	{
 		radiusA = this->m_v3HalfWidth[i];
 		radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[i][0] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[i][1] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[i][2];
 		if (abs(centerToCenter[i]) > (radiusA + radiusB))
 		{
-			return 0;
+			return 1;
 		}
 	}
 
-	// test B's x-axis (B0)
-
-	// test B's y-axis (B1)
-
-	// test B's z-axis (B2)
-
+	// test B's x-axis (B0) & test B's y-axis (B1) & test B's z-axis (B2)
 	for (int i = 0; i < 3; i++)
 	{
 		radiusA = this->m_v3HalfWidth[0] * absoluteRotation[0][i] + this->m_v3HalfWidth[1] * absoluteRotation[1][i] + this->m_v3HalfWidth[2] * absoluteRotation[2][i];
 		radiusB = a_pOther->m_v3HalfWidth[i];
 		if (abs(centerToCenter[0] * rotation[0][i] + centerToCenter[1] * rotation[1][i] + centerToCenter[2] * rotation[2][i]) > (radiusA + radiusB))
 		{
-			return 0;
+			return 1;
 		}
 	}
 
 	// test cross(A0, B0)
-
 	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][0] + this->m_v3HalfWidth[2] * absoluteRotation[1][0];
 	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[0][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[0][1];
 	if (abs(centerToCenter[2] * rotation[1][0] - centerToCenter[1] * rotation[2][0]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A0, B1)
-
 	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][1] + this->m_v3HalfWidth[2] * absoluteRotation[1][1];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[0][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[0][0];
 	if (abs(centerToCenter[2] * rotation[1][1] - centerToCenter[1] * rotation[2][1]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A0, B2)
-
 	radiusA = this->m_v3HalfWidth[1] * absoluteRotation[2][2] + this->m_v3HalfWidth[2] * absoluteRotation[1][2];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[0][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[0][0];
 	if (abs(centerToCenter[2] * rotation[1][2] - centerToCenter[1] * rotation[2][2]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A1, B0)
-
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][0] + this->m_v3HalfWidth[2] * absoluteRotation[0][0];
 	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[1][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[1][1];
 	if (abs(centerToCenter[0] * rotation[2][0] - centerToCenter[2] * rotation[0][0]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A1, B1)
-
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][1] + this->m_v3HalfWidth[2] * absoluteRotation[0][1];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[1][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[1][0];
 	if (abs(centerToCenter[0] * rotation[2][1] - centerToCenter[2] * rotation[0][1]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A1, B2)
-	
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[2][2] + this->m_v3HalfWidth[2] * absoluteRotation[0][2];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[1][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[1][0];
 	if (abs(centerToCenter[0] * rotation[2][2] - centerToCenter[2] * rotation[0][2]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A2, B0)
-
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][0] + this->m_v3HalfWidth[1] * absoluteRotation[0][0];
 	radiusB = a_pOther->m_v3HalfWidth[1] * absoluteRotation[2][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[2][1];
 	if (abs(centerToCenter[1] * rotation[0][0] - centerToCenter[0] * rotation[1][0]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A2, B1)
-
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][1] + this->m_v3HalfWidth[1] * absoluteRotation[0][1];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[2][2] + a_pOther->m_v3HalfWidth[2] * absoluteRotation[2][0];
 	if (abs(centerToCenter[1] * rotation[0][1] - centerToCenter[0] * rotation[1][1]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
 	// test cross(A2, B2)
-
 	radiusA = this->m_v3HalfWidth[0] * absoluteRotation[1][2] + this->m_v3HalfWidth[1] * absoluteRotation[0][2];
 	radiusB = a_pOther->m_v3HalfWidth[0] * absoluteRotation[2][1] + a_pOther->m_v3HalfWidth[1] * absoluteRotation[2][0];
 	if (abs(centerToCenter[1] * rotation[0][2] - centerToCenter[0] * rotation[1][2]) > (radiusA + radiusB))
 	{
-		return 0;
+		return 1;
 	}
 
-	// there is an axis that separates the two objects
-	return 1;
+	// there is no axis that separates the two objects
+	return 0;
 }
