@@ -113,17 +113,17 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 		break;
 	case sf::Keyboard::PageUp:
 		++m_uOctantID;
-		/*
+		
 		if (m_uOctantID >= m_pRoot->GetOctantCount())
 		m_uOctantID = - 1;
-		*/
+		
 		break;
 	case sf::Keyboard::PageDown:
 		--m_uOctantID;
-		/*
+		
 		if (m_uOctantID >= m_pRoot->GetOctantCount())
 		m_uOctantID = - 1;
-		*/
+		
 		break;
 	case sf::Keyboard::Add:
 		if (m_uOctantLevels < 4)
@@ -146,6 +146,10 @@ void Application::ProcessKeyReleased(sf::Event a_event)
 			m_pRoot = new MyOctant(m_uOctantLevels, 5);
 
 		}
+		break;
+	// turn Octree representation on/off
+	case sf::Keyboard::Period:
+		visualRepresentation = !visualRepresentation;
 		break;
 	case sf::Keyboard::LShift:
 	case sf::Keyboard::RShift:

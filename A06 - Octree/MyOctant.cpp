@@ -1,15 +1,16 @@
 #include "MyOctant.h"
 
-// MyOctant variables
+// MyOctant static variables
 Simplex::uint Simplex::MyOctant::m_uOctantCount = 0;
-Simplex::uint Simplex::MyOctant::m_uMaxLevel = 3;
-Simplex::uint Simplex::MyOctant::m_uIdealEntityCount = 5;
+Simplex::uint Simplex::MyOctant::m_uMaxLevel = 0;
+Simplex::uint Simplex::MyOctant::m_uIdealEntityCount = 0;
 
 Simplex::MyOctant::MyOctant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 {
 	// call Init();
 	Init();
 
+	// intialize variables
 	m_uOctantCount = 0;
 	m_uMaxLevel = a_nMaxLevel;
 	m_uIdealEntityCount = a_nIdealEntityCount;
@@ -20,8 +21,9 @@ Simplex::MyOctant::MyOctant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 
 	std::vector<vector3> lMinMax;
 
-	uint nObjects = m_pEntityMngr->GetEntityCount();
-	for (uint i = 0; i < nObjects; i++)
+	// loop through entities and push to the list
+	uint entityCount = m_pEntityMngr->GetEntityCount();
+	for (uint i = 0; i < entityCount; i++)
 	{
 		MyEntity* pEntity = m_pEntityMngr->GetEntity(i);
 		MyRigidBody* pRigidBody = pEntity->GetRigidBody();
@@ -67,6 +69,7 @@ Simplex::MyOctant::MyOctant(vector3 a_v3Center, float a_fSize)
 
 Simplex::MyOctant::MyOctant(MyOctant const & other)
 {
+	// swap values with paramterized values
 	m_uChildren = other.m_uChildren;
 	m_v3Center = other.m_v3Center;
 	m_v3Min = other.m_v3Min;
@@ -129,7 +132,8 @@ void Simplex::MyOctant::Swap(MyOctant & other)
 		std::swap(m_pChild[i], other.m_pChild[i]);
 	}
 }
-
+ 
+// Getter Methods
 float Simplex::MyOctant::GetSize(void)
 {
 	return m_fSize;
@@ -150,22 +154,23 @@ Simplex::vector3 Simplex::MyOctant::GetMaxGlobal(void)
 	return m_v3Max;
 }
 
+// AARB collision check
 bool Simplex::MyOctant::IsColliding(uint a_uRBIndex)
 {
-	uint nObjectCount = m_pEntityMngr->GetEntityCount();
-	// If the index given is larger than the number of elements in the bounding object there is no collission
-	if (a_uRBIndex >= nObjectCount)
+	uint entityCount = m_pEntityMngr->GetEntityCount();
+	// check if index is larger than the number of entities as there would be no collision
+	if (a_uRBIndex >= entityCount)
 	{
 		return false;
 	}
-	// As the Octree will never rotate or scale this collision is as an Axis Alligned Bound Box
-	// Get all vectors in global space (the octant ones are already in global)
+	// AARB Collision
+	// Get vectors in global space
 	MyEntity* pEntity = m_pEntityMngr->GetEntity(a_uRBIndex);
 	MyRigidBody* pRigidBody = pEntity->GetRigidBody();
 	vector3 v3MinO = pRigidBody->GetMinGlobal();
 	vector3 v3MaxO = pRigidBody->GetMaxGlobal();
 
-	// check for x
+	// x-axis
 	if (m_v3Max.x < v3MinO.x)
 	{
 		return false;
@@ -175,7 +180,7 @@ bool Simplex::MyOctant::IsColliding(uint a_uRBIndex)
 		return false;
 	}
 
-	// check for y
+	// y-axis
 	if (m_v3Max.y < v3MinO.y)
 	{
 		return false;
@@ -185,7 +190,7 @@ bool Simplex::MyOctant::IsColliding(uint a_uRBIndex)
 		return false;
 	}
 
-	// check for z
+	// z-axis
 	if (m_v3Max.z < v3MinO.z)
 	{
 		return false;
@@ -215,14 +220,14 @@ void Simplex::MyOctant::Display(uint a_nIndex, vector3 a_v3Color)
 
 void Simplex::MyOctant::Display(vector3 a_v3Color)
 {
-	for (uint nIndex = 0; nIndex < m_uChildren; nIndex++)
+	for (uint i = 0; i < m_uChildren; i++)
 	{
-		m_pChild[nIndex]->Display(a_v3Color);
+		m_pChild[i]->Display(a_v3Color);
 	}
 	m_pMeshMngr->AddWireCubeToRenderList(glm::translate(IDENTITY_M4, m_v3Center) * glm::scale(vector3(m_fSize)), a_v3Color, RENDER_WIRE);
 }
 
-// not used
+
 void Simplex::MyOctant::DisplayLeafs(vector3 a_v3Color)
 {
 	uint nLeafs = m_lChild.size();
@@ -245,57 +250,59 @@ void Simplex::MyOctant::ClearEntityList(void)
 
 void Simplex::MyOctant::Subdivide(void)
 {
-	// if this node has reach the maximum depth return without changes
+	// if this node is at max level return nothing
 	if (m_uLevel >= m_uMaxLevel)
 	{
 		return;
 	}
 
-	// if this node has already subdivided return without changes
+	// if this node is already subdivided return nothing
 	if (m_uChildren != 0)
 	{
 		return;
 	}
 
-	// as this will have children it will not be a leaf
-	m_uChildren = 8; // ?
+	// not a leaf due to having children
+	m_uChildren = 8; 
 
 	float fSize = m_fSize / 4.0f;
 	float fsizeD = fSize * 2.0f;
 	vector3 v3Center;
 
-	// MyOctant 0 Bottom Left Back
+	// Division into the 8 internal cubes that make up an octant
+
+	// Bottom Left Back Cube
 	v3Center = m_v3Center;
 	v3Center.x -= fSize;
 	v3Center.y -= fSize;
 	v3Center.z -= fSize;
 	m_pChild[0] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 1 Bottom Right Back
+	// Bottom Right Back Cube
 	v3Center.x += fsizeD;
 	m_pChild[1] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 2 Bottom Right Front
+	// Bottom Right Front Cube
 	v3Center.z += fsizeD;
 	m_pChild[2] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 3 Bottom Left Front
+	// Bottom Left Front Cube
 	v3Center.x -= fsizeD;
 	m_pChild[3] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 4 Top Left Front
+	// Top Left Front Cube
 	v3Center.y += fsizeD;
 	m_pChild[4] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 5 Top Left Back
+	// Top Left Back Cube
 	v3Center.z -= fsizeD;
 	m_pChild[5] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 6 Top Right Back
+	// Top Right Back Cube
 	v3Center.x += fsizeD;
 	m_pChild[6] = new MyOctant(v3Center, fsizeD);
 
-	// MyOctant 7 Top Right Front
+	// Top Right Front Cube
 	v3Center.z += fsizeD;
 	m_pChild[7] = new MyOctant(v3Center, fsizeD);
 
@@ -326,7 +333,7 @@ Simplex::MyOctant * Simplex::MyOctant::GetParent(void)
 	return m_pParent;
 }
 
-// not used
+
 bool Simplex::MyOctant::IsLeaf(void)
 {
 	return m_uChildren == 0;
@@ -352,22 +359,20 @@ bool Simplex::MyOctant::ContainsMoreThan(uint a_nEntities)
 
 void Simplex::MyOctant::KillBranches(void)
 {
-	/* This method has recursive behavior that is somewhat hard to explain line by line but it will traverse the whole tree
-	until it reaches a node with no children and once it returns from it to its parent it will kill all of its children,
-	recursively until it reaches back the node that called it.*/
-	for (uint nIndex = 0; nIndex < m_uChildren; nIndex++)
+	// Recursive method that will go through the entire Octree until it reaches a node with no children from which it will return back to the 
+	// the node that called it, killing all the children in the process.
+	for (uint i = 0; i < m_uChildren; i++)
 	{
-		m_pChild[nIndex]->KillBranches();
-		delete m_pChild[nIndex];
-		m_pChild[nIndex] = nullptr;
+		m_pChild[i]->KillBranches();
+		delete m_pChild[i];
+		m_pChild[i] = nullptr;
 	}
 	m_uChildren = 0;
 }
 
 void Simplex::MyOctant::ConstructTree(uint a_nMaxLevel)
 {
-	// if this method is tried to be applied to something else
-	// other than the root, don't
+	// if it is not the root
 	if (m_uLevel != 0)
 	{
 		return;
@@ -379,7 +384,7 @@ void Simplex::MyOctant::ConstructTree(uint a_nMaxLevel)
 
 	m_EntityList.clear();
 
-	// clear the tree
+	// empty the tree
 	KillBranches();
 	m_lChild.clear();
 
@@ -389,21 +394,21 @@ void Simplex::MyOctant::ConstructTree(uint a_nMaxLevel)
 		Subdivide();
 	}
 
-	// add octant ID to entities
+	// assign octant IDs
 	AssignIDtoEntity();
 
-	// construct the list of objects
+	// construct object list
 	ConstructList();
 }
 
 void Simplex::MyOctant::AssignIDtoEntity(void)
 {
-	// traverse until you reach a leaf
+	// move through tree until you reach a leaf
 	for (uint nChild = 0; nChild < m_uChildren; nChild++)
 	{
 		m_pChild[nChild]->AssignIDtoEntity();
 	}
-	if (m_uChildren == 0) // if this is a leaf (TRY SOMETHING HERE)
+	if (IsLeaf()) // if this is a leaf 
 	{
 		uint nEntities = m_pEntityMngr->GetEntityCount();
 		for (uint nIndex = 0; nIndex < nEntities; nIndex++)

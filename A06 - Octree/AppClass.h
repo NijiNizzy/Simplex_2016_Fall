@@ -19,6 +19,7 @@ namespace Simplex
 	{
 		MyEntityManager* m_pEntityMngr = nullptr; //Entity Manager
 		MyOctant* m_pRoot = nullptr;
+		bool visualRepresentation = true; // turn visual representation on/off
 		uint m_uOctantID = -1; //Index of Octant to display
 		uint m_uObjects = 0; //Number of objects in the scene
 		uint m_uOctantLevels = 0; //Number of levels in the octree

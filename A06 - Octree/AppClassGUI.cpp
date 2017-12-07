@@ -54,6 +54,7 @@ void Application::DrawGUI(void)
 			ImGui::Separator();
 			ImGui::Text("	  -: Increment Octree subdivision\n");
 			ImGui::Text("	  +: Decrement Octree subdivision\n");
+			ImGui::Text("	  .: Turn Visual Representation On/Off\n");
 			ImGui::Separator();
 			ImGui::TextColored(ImColor(255, 255, 0), "Octree\n");
 		}
